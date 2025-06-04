@@ -1,0 +1,145 @@
+// ===============================================
+// グローバルスタイル定義ファイル
+// ===============================================
+
+// === リセットCSS ===
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px; // ベースフォントサイズ
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-normal;
+  color: $color-text-primary;
+  background-color: $color-bg-primary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+// === アプリケーション全体のレイアウト ===
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// === 共通要素のスタイル ===
+h1, h2, h3, h4, h5, h6 {
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  margin-bottom: $spacing-md;
+}
+
+h1 { font-size: $font-size-xxl; }
+h2 { font-size: $font-size-xl; }
+h3 { font-size: $font-size-lg; }
+h4, h5, h6 { font-size: $font-size-base; }
+
+p {
+  margin-bottom: $spacing-md;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// === リンクスタイル ===
+a {
+  color: $color-primary;
+  text-decoration: none;
+  transition: $transition-fast;
+  
+  &:hover {
+    color: $color-primary-dark;
+    text-decoration: underline;
+  }
+  
+  &:focus {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+// === ボタンのデフォルトスタイルリセット ===
+button {
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+// === 入力要素のデフォルトスタイルリセット ===
+input, textarea {
+  font: inherit;
+  border: none;
+  outline: none;
+}
+
+// === スクロールバーのカスタマイズ ===
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $color-bg-secondary;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $color-border-medium;
+  border-radius: $border-radius-full;
+  
+  &:hover {
+    background: $color-border-dark;
+  }
+}
+
+// === フォーカス時のアウトライン統一 ===
+*:focus {
+  outline: 2px solid $color-primary;
+  outline-offset: 2px;
+}
+
+button:focus,
+input:focus,
+textarea:focus {
+  outline: none; // これらは個別にfocus処理を定義
+}
+
+// === レスポンシブ画像 ===
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// === ユーティリティクラス ===
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.container {
+  max-width: $chat-container-max-width;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+  
+  @include mobile {
+    padding: 0 $spacing-sm;
+  }
+}

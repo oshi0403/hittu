@@ -1,0 +1,238 @@
+// ===============================================
+// MessageInputコンポーネントのスタイル
+// ===============================================
+
+// 変数とmixinをインポート（直接値は一切使用しない）
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+// === メッセージ入力エリア ===
+.message-input {
+  // 画面下部に固定（要件定義書の仕様）
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-index-fixed;
+  
+  // 背景とボーダー
+  background-color: $color-bg-primary;
+  border-top: 1px solid $color-border-light;
+  box-shadow: $shadow-md;
+  
+  // 高さを確実に指定（ボーダー含む）
+  height: $input-area-height;
+  min-height: $input-area-height;
+  
+  // ボックスサイジングを明確に指定
+  box-sizing: border-box;
+  
+  // 内側のパディング
+  padding: $spacing-sm $spacing-md;
+  
+  @include mobile {
+    padding: $spacing-sm $spacing-sm;
+    // モバイルでは少し高さを調整
+    height: calc(#{$input-area-height} - 4px);
+    min-height: calc(#{$input-area-height} - 4px);
+  }
+}
+
+// === 入力コンテナ ===
+.message-input__container {
+  @include flex-between;
+  max-width: $chat-container-max-width;
+  margin: 0 auto;
+  gap: $spacing-sm;
+  align-items: flex-end; // ボタンを下端に揃える
+}
+
+// === 入力フィールドラッパー ===
+.message-input__field-wrapper {
+  position: relative;
+  flex: 1; // 残りスペースを全て使用
+  min-width: 0; // フレックスアイテムの最小幅をリセット
+}
+
+// === 入力フィールド ===
+.message-input__field {
+  @include input-base;
+  
+  // 高さを調整
+  min-height: 2.5rem; // 40px
+  padding: $spacing-sm $spacing-md;
+  
+  // プレースホルダースタイル
+  &::placeholder {
+    color: $color-text-secondary;
+    opacity: 0.8;
+  }
+  
+  // フォーカス時のスタイル強化
+  &:focus {
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+  }
+  
+  // ローディング・無効時のスタイル
+  &:disabled {
+    background-color: $color-bg-secondary;
+    color: $color-text-muted;
+    cursor: not-allowed;
+    
+    &::placeholder {
+      color: $color-text-muted;
+    }
+  }
+  
+  @include mobile {
+    font-size: $font-size-base; // モバイルでのズーム防止
+    min-height: 2.25rem; // 36px - 少し小さく
+  }
+}
+
+// === 文字数カウンター ===
+.message-input__counter {
+  position: absolute;
+  bottom: $spacing-xs;
+  right: $spacing-xs;
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  background-color: rgba($color-bg-primary, 0.9);
+  padding: 2px $spacing-xs;
+  border-radius: $border-radius-sm;
+  pointer-events: none; // マウスイベントを透過
+}
+
+// === 送信ボタン ===
+.message-input__button {
+  @include button-primary;
+  
+  // サイズ調整
+  min-width: 2.5rem; // 40px - 正方形に近い形
+  height: 2.5rem;
+  padding: 0; // アイコンボタンなので内側余白なし
+  
+  // 無効時のスタイル
+  &:disabled {
+    background-color: $color-secondary-light;
+    color: $color-text-muted;
+    cursor: not-allowed;
+    
+    &:hover {
+      background-color: $color-secondary-light; // ホバー効果を無効化
+      transform: none;
+    }
+  }
+  
+  // アクティブ状態（送信可能時）
+  &--active {
+    background-color: $color-primary;
+    
+    &:hover:not(:disabled) {
+      background-color: $color-primary-dark;
+      transform: scale(1.05); // 軽い拡大効果
+    }
+    
+    &:active:not(:disabled) {
+      transform: scale(0.95); // 押下時の縮小効果
+    }
+  }
+  
+  @include mobile {
+    min-width: 2.25rem; // 36px
+    height: 2.25rem;
+  }
+}
+
+// === 送信アイコン ===
+.message-input__send-icon {
+  font-size: $font-size-lg;
+  line-height: 1;
+  display: inline-block;
+  transform: translateX(1px); // 視覚的中央揃えの微調整
+  
+  @include mobile {
+    font-size: $font-size-base;
+  }
+}
+
+// === ローディング表示 ===
+.message-input__loading {
+  @include flex-center;
+  width: 100%;
+  height: 100%;
+}
+
+.message-input__loading-dots {
+  @include loading-dots;
+  color: $color-text-white;
+  
+  &::after {
+    color: inherit;
+  }
+}
+
+// === レスポンシブ対応の調整 ===
+@include mobile {
+  .message-input {
+    // モバイルでは少し薄いシャドウ
+    box-shadow: $shadow-sm;
+  }
+  
+  .message-input__container {
+    gap: $spacing-xs; // スペースを狭める
+  }
+}
+
+@include tablet {
+  .message-input {
+    padding: $spacing-md $spacing-lg;
+  }
+}
+
+@include desktop {
+  .message-input {
+    padding: $spacing-md $spacing-xl;
+  }
+}
+
+// === アクセシビリティ対応 ===
+.message-input__button {
+  // キーボードフォーカス時の視覚的フィードバック
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.message-input__field {
+  // キーボードフォーカス時の視覚的フィードバック
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: -2px;
+  }
+}
+
+// === アニメーション効果 ===
+.message-input {
+  // 初期表示時のスライドアップアニメーション
+  @include slide-up;
+}
+
+.message-input__button {
+  // ボタンの状態変化時のスムーズな遷移
+  transition: all $transition-fast;
+}
+
+// === ダークモード対応（将来的な拡張用） ===
+@media (prefers-color-scheme: dark) {
+  .message-input {
+    background-color: darken($color-bg-primary, 5%);
+    border-top-color: darken($color-border-light, 10%);
+  }
+  
+  .message-input__field {
+    background-color: darken($color-bg-primary, 3%);
+  }
+}

@@ -1,0 +1,227 @@
+// ===============================================
+// SCSS Mixin定義ファイル
+// ===============================================
+
+// === レスポンシブデザイン用Mixin ===
+@mixin mobile {
+  @media (max-width: #{$breakpoint-tablet - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-tablet}) and (max-width: #{$breakpoint-desktop - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-desktop}) {
+    @content;
+  }
+}
+
+@mixin wide {
+  @media (min-width: #{$breakpoint-wide}) {
+    @content;
+  }
+}
+
+// === レイアウト用Mixin ===
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+// === チャットボット固有Mixin ===
+@mixin message-bubble {
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  margin-bottom: $message-spacing;
+  word-wrap: break-word;
+  word-break: break-word;
+  max-width: $message-max-width-desktop;
+  
+  @include mobile {
+    max-width: $message-max-width-mobile;
+  }
+  
+  @include tablet {
+    max-width: $message-max-width-tablet;
+  }
+}
+
+@mixin user-message {
+  @include message-bubble;
+  background-color: $color-bg-user-message;
+  color: $color-text-white;
+  margin-left: auto;
+  margin-right: 0;
+  text-align: right;
+}
+
+@mixin bot-message {
+  @include message-bubble;
+  background-color: $color-bg-bot-message;
+  color: $color-text-primary;
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+// === ボタン用Mixin ===
+@mixin button-base {
+  border: none;
+  border-radius: $border-radius-md;
+  padding: $spacing-sm $spacing-md;
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: $transition-fast;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba($color-primary, 0.3);
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background-color: $color-primary;
+  color: $color-text-white;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-primary-dark;
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background-color: $color-secondary;
+  color: $color-text-white;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-secondary-dark;
+  }
+}
+
+// === 入力フィールド用Mixin ===
+@mixin input-base {
+  border: 1px solid $color-border-medium;
+  border-radius: $border-radius-md;
+  padding: $spacing-sm $spacing-md;
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  transition: $transition-fast;
+  width: 100%;
+  
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+  }
+  
+  &::placeholder {
+    color: $color-text-secondary;
+  }
+  
+  &:disabled {
+    background-color: $color-bg-secondary;
+    cursor: not-allowed;
+  }
+}
+
+// === アニメーション用Mixin ===
+@mixin fade-in {
+  animation: fadeIn $transition-normal;
+}
+
+@mixin slide-up {
+  animation: slideUp $transition-normal ease-out;
+}
+
+// === スクロール用Mixin ===
+@mixin custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: $color-border-medium transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: $color-border-medium;
+    border-radius: $border-radius-full;
+    
+    &:hover {
+      background-color: $color-border-dark;
+    }
+  }
+}
+
+// === ローディング用Mixin ===
+@mixin loading-dots {
+  &::after {
+    content: '';
+    display: inline-block;
+    animation: loadingDots 1.5s infinite;
+  }
+}
+
+// === キーフレーム定義 ===
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}

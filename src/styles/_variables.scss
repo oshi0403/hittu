@@ -1,0 +1,131 @@
+// ===============================================
+// SCSS変数定義ファイル（中央管理）
+// ===============================================
+
+// === カラーパレット ===
+// Primary Colors
+$color-primary: #007bff;
+$color-primary-light: #66b3ff;
+$color-primary-dark: #0056b3;
+
+// Secondary Colors
+$color-secondary: #6c757d;
+$color-secondary-light: #adb5bd;
+$color-secondary-dark: #495057;
+
+// UI Colors
+$color-success: #28a745;
+$color-error: #dc3545;
+$color-warning: #ffc107;
+$color-info: #17a2b8;
+
+// Background Colors
+$color-bg-primary: #ffffff;
+$color-bg-secondary: #f8f9fa;
+$color-bg-chat: #f5f5f5;
+$color-bg-user-message: #007bff;
+$color-bg-bot-message: #e9ecef;
+
+// Text Colors
+$color-text-primary: #212529;
+$color-text-secondary: #6c757d;
+$color-text-muted: #adb5bd;
+$color-text-white: #ffffff;
+
+// Border Colors
+$color-border-light: #dee2e6;
+$color-border-medium: #ced4da;
+$color-border-dark: #adb5bd;
+
+// === フォント設定 ===
+$font-family-primary: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+$font-family-monospace: 'Courier New', monospace;
+
+// Font Sizes
+$font-size-xs: 0.75rem;   // 12px
+$font-size-sm: 0.875rem;  // 14px
+$font-size-base: 1rem;    // 16px
+$font-size-lg: 1.125rem;  // 18px
+$font-size-xl: 1.25rem;   // 20px
+$font-size-xxl: 1.5rem;   // 24px
+
+// Font Weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// Line Heights
+$line-height-tight: 1.2;
+$line-height-normal: 1.4;
+$line-height-relaxed: 1.6;
+
+// === レイアウト・スペーシング ===
+// Spacing Scale
+$spacing-xs: 0.25rem;  // 4px
+$spacing-sm: 0.5rem;   // 8px
+$spacing-md: 1rem;     // 16px
+$spacing-lg: 1.5rem;   // 24px
+$spacing-xl: 2rem;     // 32px
+$spacing-xxl: 3rem;    // 48px
+
+// Border Radius
+$border-radius-sm: 0.25rem;
+$border-radius-md: 0.375rem;
+$border-radius-lg: 0.5rem;
+$border-radius-xl: 0.75rem;
+$border-radius-full: 50%;
+
+// Shadows
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+// === レスポンシブブレークポイント ===
+$breakpoint-mobile: 480px;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;
+$breakpoint-wide: 1200px;
+
+// === Z-Index階層 ===
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal: 1040;
+$z-index-popover: 1050;
+$z-index-tooltip: 1060;
+
+// === アニメーション ===
+$transition-fast: 0.15s ease-in-out;
+$transition-normal: 0.3s ease-in-out;
+$transition-slow: 0.6s ease-in-out;
+
+// === チャットボット固有の変数 ===
+$chat-container-max-width: 800px;
+$message-max-width-mobile: 85%;
+$message-max-width-tablet: 70%;
+$message-max-width-desktop: 65%;
+
+// MessageInputの実際の高さを計算に入れて調整
+$input-area-height: 64px; // 60px → 64px (ボーダー・パディング込み)
+$message-spacing: $spacing-md;
+$avatar-size: 32px;
+
+// === ロゴ・アイコンサイズ ===
+// ヘッダーロゴサイズ
+$logo-header-size: 6.25rem;           // 100px
+$logo-header-size-tablet: 5rem;       // 80px
+$logo-header-size-mobile: 3.75rem;    // 60px
+
+// 一般的なアイコンサイズ
+$icon-xs: 1rem;      // 16px
+$icon-sm: 1.25rem;   // 20px
+$icon-md: 1.5rem;    // 24px
+$icon-lg: 2rem;      // 32px
+$icon-xl: 2.5rem;    // 40px
+$icon-xxl: 3rem;     // 48px
+
+// ボタン内アイコンサイズ
+$icon-button-sm: 1rem;    // 16px
+$icon-button-md: 1.25rem; // 20px
+$icon-button-lg: 1.5rem;  // 24px

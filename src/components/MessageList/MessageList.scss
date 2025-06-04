@@ -1,0 +1,309 @@
+// ===============================================
+// MessageListコンポーネントのスタイル
+// ===============================================
+
+// 変数とmixinをインポート（直接値は一切使用しない）
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+// === メッセージリストメインコンテナ ===
+.message-list {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  @include flex-column;
+  
+  // 初期表示時のフェードインアニメーション
+  @include fade-in;
+}
+
+// === メッセージスクロールコンテナ ===
+.message-list__container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  position: relative;
+  
+  // カスタムスクロールバー（準備済みMixin使用）
+  @include custom-scrollbar;
+  
+  // スクロール動作の最適化
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; // iOS用のスムーズスクロール
+  
+  // スクロール時のパフォーマンス最適化
+  will-change: scroll-position;
+  
+  @include mobile {
+    // モバイルでは少し細いスクロールバー
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+  }
+}
+
+// === メッセージコンテンツエリア ===
+.message-list__content {
+  padding: $spacing-lg $spacing-md;
+  min-height: 100%; // 最小高さを確保
+  
+  // フレックスレイアウトで縦方向配置
+  @include flex-column;
+  justify-content: flex-end; // 下揃えで開始
+  
+  // 下部に追加の余白を確保
+  padding-bottom: $spacing-lg;
+  
+  @include mobile {
+    padding: $spacing-md $spacing-sm;
+    padding-bottom: $spacing-md;
+  }
+  
+  @include tablet {
+    padding: $spacing-lg $spacing-lg;
+    padding-bottom: $spacing-lg;
+  }
+  
+  @include desktop {
+    padding: $spacing-xl $spacing-xl;
+    padding-bottom: $spacing-xl;
+    max-width: $chat-container-max-width;
+    margin: 0 auto;
+  }
+}
+
+// === 個別メッセージアイテム ===
+.message-list__item {
+  // Message コンポーネント自体にmargin-bottomが設定されているため、
+  // ここでは最小限の設定のみ
+  &:last-child {
+    // 最後のメッセージに十分な余白を確保
+    margin-bottom: $spacing-md;
+  }
+}
+
+// === スクロールグラデーション効果 ===
+.message-list__gradient-top,
+.message-list__gradient-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: $spacing-lg;
+  pointer-events: none; // マウスイベントを透過
+  z-index: $z-index-sticky;
+}
+
+.message-list__gradient-top {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba($color-bg-chat, 0.8) 0%,
+    rgba($color-bg-chat, 0.4) 50%,
+    transparent 100%
+  );
+}
+
+.message-list__gradient-bottom {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    rgba($color-bg-chat, 0.8) 0%,
+    rgba($color-bg-chat, 0.4) 50%,
+    transparent 100%
+  );
+}
+
+// === 最下部スクロールボタン ===
+.message-list__scroll-button {
+  position: absolute;
+  bottom: $spacing-lg;
+  right: $spacing-lg;
+  z-index: $z-index-fixed;
+  
+  // ボタンの基本スタイル
+  @include button-primary;
+  
+  // サイズとレイアウト調整
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 3rem; // 48px
+  height: 3rem;
+  border-radius: $border-radius-full; // 円形ボタン
+  
+  // シャドウとアニメーション
+  box-shadow: $shadow-lg;
+  transition: all $transition-normal;
+  
+  // ホバー・フォーカス効果
+  &:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba($color-primary, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.95);
+  }
+  
+  // フォーカス状態
+  &:focus-visible {
+    outline: 2px solid rgba($color-primary, 0.5);
+    outline-offset: 2px;
+  }
+  
+  @include mobile {
+    bottom: $spacing-md;
+    right: $spacing-md;
+    min-width: 2.5rem; // 40px
+    height: 2.5rem;
+  }
+}
+
+// === スクロールボタンアイコンとテキスト ===
+.message-list__scroll-icon {
+  font-size: $font-size-lg;
+  line-height: 1;
+  font-weight: $font-weight-bold;
+  
+  @include mobile {
+    font-size: $font-size-base;
+  }
+}
+
+.message-list__scroll-text {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  @include mobile {
+    font-size: 0.625rem; // 10px
+  }
+}
+
+// === 空状態スタイル ===
+.message-list--empty {
+  @include flex-center;
+  height: 100%;
+  min-height: 60vh; // 最小高さを確保
+}
+
+.message-list__empty-state {
+  @include flex-column-center;
+  text-align: center;
+  max-width: 24rem; // 384px
+  padding: $spacing-xl;
+  
+  @include mobile {
+    max-width: 20rem; // 320px
+    padding: $spacing-lg;
+  }
+}
+
+.message-list__empty-icon {
+  font-size: 4rem; // 64px
+  margin-bottom: $spacing-lg;
+  opacity: 0.6;
+  
+  @include mobile {
+    font-size: 3rem; // 48px
+    margin-bottom: $spacing-md;
+  }
+}
+
+.message-list__empty-title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  
+  @include mobile {
+    font-size: $font-size-lg;
+  }
+}
+
+.message-list__empty-description {
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+  
+  @include mobile {
+    font-size: $font-size-sm;
+  }
+}
+
+// === レスポンシブ調整 ===
+@include mobile {
+  .message-list__gradient-top,
+  .message-list__gradient-bottom {
+    height: $spacing-md; // モバイルでは少し薄く
+  }
+}
+
+@include desktop {
+  .message-list__container {
+    // デスクトップでは少し太いスクロールバー
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+  }
+}
+
+// === パフォーマンス最適化 ===
+.message-list__container {
+  // GPUアクセラレーションを有効化
+  transform: translateZ(0);
+  
+  // メッセージ数が多い場合の最適化
+  contain: layout style paint;
+}
+
+.message-list__item {
+  // 仮想化対応の準備（将来の拡張用）
+  contain: layout style;
+}
+
+// === アクセシビリティ対応 ===
+@media (prefers-reduced-motion: reduce) {
+  .message-list__container {
+    scroll-behavior: auto; // アニメーション無効時は即座にスクロール
+  }
+  
+  .message-list__scroll-button {
+    transition: none; // アニメーション無効
+    
+    &:hover:not(:disabled) {
+      transform: none; // ホバー効果を無効化
+    }
+  }
+}
+
+// === ダークモード対応（将来的な拡張用） ===
+@media (prefers-color-scheme: dark) {
+  .message-list__gradient-top {
+    background: linear-gradient(
+      to bottom,
+      rgba(darken($color-bg-chat, 10%), 0.8) 0%,
+      rgba(darken($color-bg-chat, 10%), 0.4) 50%,
+      transparent 100%
+    );
+  }
+  
+  .message-list__gradient-bottom {
+    background: linear-gradient(
+      to top,
+      rgba(darken($color-bg-chat, 10%), 0.8) 0%,
+      rgba(darken($color-bg-chat, 10%), 0.4) 50%,
+      transparent 100%
+    );
+  }
+  
+  .message-list__empty-title {
+    color: lighten($color-text-primary, 10%);
+  }
+  
+  .message-list__empty-description {
+    color: lighten($color-text-secondary, 15%);
+  }
+}

@@ -1,0 +1,181 @@
+// ===============================================
+// Messageコンポーネントのスタイル
+// ===============================================
+
+// 変数とmixinをインポート（直接値は一切使用しない）
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+// === メッセージコンテナ ===
+.message {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: $message-spacing;
+  width: 100%;
+  
+  // フェードインアニメーション
+  @include fade-in;
+  
+  // ユーザーメッセージ（右寄せ）
+  &--user {
+    justify-content: flex-end;
+    
+    .message__bubble {
+      @include user-message;
+    }
+  }
+  
+  // ボットメッセージ（左寄せ）
+  &--bot {
+    justify-content: flex-start;
+    
+    .message__bubble {
+      @include bot-message;
+    }
+  }
+  
+  // ローディング状態
+  &--loading {
+    .message__bubble {
+      opacity: 0.8;
+    }
+  }
+}
+
+// === メッセージバブル ===
+.message__bubble {
+  position: relative;
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  transition: $transition-fast;
+  
+  // ホバー効果
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+  
+  @include mobile {
+    font-size: $font-size-sm;
+  }
+}
+
+// === メッセージ内容 ===
+.message__content {
+  // 長いテキストの折り返し処理
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  
+  // URLなどの長い文字列の処理
+  hyphens: auto;
+  
+  // リンクスタイル（将来的にMarkdown対応時に有用）
+  a {
+    color: inherit;
+    text-decoration: underline;
+    
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// === ローディングテキスト ===
+.message__loading-text {
+  display: flex;
+  align-items: center;
+  color: $color-text-secondary;
+  font-style: italic;
+}
+
+.message__loading-dots {
+  @include loading-dots;
+  margin-left: $spacing-xs;
+  min-width: $spacing-lg; // ドットアニメーション用のスペース確保
+}
+
+// === 時刻表示 ===
+.message__timestamp {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  margin-top: $spacing-xs;
+  text-align: right;
+  
+  // ユーザーメッセージの場合は右揃え、ボットメッセージの場合は左揃え
+  .message--user & {
+    text-align: right;
+  }
+  
+  .message--bot & {
+    text-align: left;
+  }
+  
+  @include mobile {
+    font-size: 0.625rem; // 10px - さらに小さく
+  }
+}
+
+// === アバター ===
+.message__avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: $color-bg-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-lg;
+  margin-right: $spacing-sm;
+  flex-shrink: 0; // アバターのサイズを固定
+  
+  @include mobile {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: $font-size-base;
+  }
+}
+
+// === レスポンシブ調整 ===
+@include mobile {
+  .message {
+    margin-bottom: $spacing-sm;
+  }
+  
+  .message__bubble {
+    // モバイルでの最大幅をさらに調整
+    max-width: $message-max-width-mobile;
+  }
+}
+
+@include tablet {
+  .message__bubble {
+    max-width: $message-max-width-tablet;
+  }
+}
+
+// === アクセシビリティ対応 ===
+.message__bubble {
+  // フォーカス時のアウトライン（キーボードナビゲーション対応）
+  &:focus {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+  
+  // スクリーンリーダー用の追加情報
+  &[aria-label] {
+    cursor: pointer;
+  }
+}
+
+// === ダークモード対応（将来的な拡張用） ===
+@media (prefers-color-scheme: dark) {
+  .message--bot .message__bubble {
+    background-color: darken($color-bg-bot-message, 10%);
+  }
+  
+  .message__timestamp {
+    color: lighten($color-text-muted, 20%);
+  }
+}
