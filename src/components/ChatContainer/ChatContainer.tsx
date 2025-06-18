@@ -20,7 +20,7 @@ import './ChatContainer.scss';
  * - 全体のレイアウト構成とレスポンシブ対応
  */
 const ChatContainer: React.FC<ChatContainerProps> = ({
-  title = "チャットボット",
+  title = "ひっつー",
   placeholder = "メッセージを入力してください..."
 }) => {
   // メッセージ状態の管理
