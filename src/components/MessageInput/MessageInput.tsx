@@ -1,120 +1,85 @@
-// ===============================================
-// メッセージ入力コンポーネント
-// ===============================================
+// MessageInput.tsx
 
-import React, { useState, useRef, KeyboardEvent } from 'react';
+import React, { useRef, KeyboardEvent } from 'react';
 import { MessageInputProps } from '../../types/chat';
 import './MessageInput.scss';
 
-/**
- * メッセージ入力フィールドと送信ボタンを提供するコンポーネント
- * 要件定義書の仕様に基づいて実装：
- * - Enterキーまたは送信ボタンでメッセージ送信
- * - 送信中の状態表示（ローディング）
- * - 空メッセージの送信防止
- */
 const MessageInput: React.FC<MessageInputProps> = ({
   onSendMessage,
+  onTypingChange,
   isLoading,
   disabled = false,
-  placeholder = "メッセージを入力してください..."
+  placeholder = "メッセージを入力してください...",
+  predictedQuestions,
+  onPredictedQuestionClick,
+  value, // 新しく追加されたプロパティ
 }) => {
-  // 入力値の状態管理
-  const [inputValue, setInputValue] = useState<string>('');
-  
-  // 入力フィールドの参照（フォーカス制御用）
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  /**
-   * 入力値の変更ハンドラー
-   */
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = event.target.value;
+    onTypingChange(value);
   };
 
-  /**
-   * メッセージ送信処理
-   */
+const handlePredictedClick = (question: string) => {
+  const trimmed = question.trim();
+  if (!trimmed || isLoading || disabled) return;
+  onPredictedQuestionClick(trimmed);
+};
+
+  
   const handleSubmit = async () => {
-    const trimmedValue = inputValue.trim();
-    
-    // 空メッセージの送信防止
+    const trimmedValue = value.trim(); // `value`を使用
     if (!trimmedValue || isLoading || disabled) {
       return;
     }
-
-    try {
-      // 入力値をクリア（送信前に行うことでUX向上）
-      setInputValue('');
-      
-      // 親コンポーネントの送信関数を呼び出し
-      await onSendMessage(trimmedValue);
-      
-      // 送信後に入力フィールドにフォーカスを戻す
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    } catch (error) {
-      // エラーが発生した場合は入力値を復元
-      setInputValue(trimmedValue);
-      console.error('Failed to send message:', error);
-    }
+    onSendMessage(trimmedValue);
   };
 
-  /**
-   * Enterキー押下時の処理
-   * Shift+Enterの場合は改行、Enterのみの場合は送信
-   */
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+  // Enterキー押下時の処理
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault(); // デフォルトの改行動作を防止
+      event.preventDefault();
       handleSubmit();
     }
   };
 
-  /**
-   * 送信ボタンクリック時の処理
-   */
-  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    handleSubmit();
-  };
-
-  // 送信可能かどうかの判定
-  const canSend = inputValue.trim().length > 0 && !isLoading && !disabled;
+  const canSend = value.trim().length > 0 && !isLoading && !disabled; // `value`を使用
 
   return (
     <div className="message-input">
-      <div className="message-input__container">
-        {/* 入力フィールド */}
-        <div className="message-input__field-wrapper">
-          <input
-            ref={inputRef}
-            type="text"
-            className="message-input__field"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder={isLoading ? "送信中..." : placeholder}
-            disabled={disabled || isLoading}
-            maxLength={1000} // 最大文字数制限
-            aria-label="メッセージ入力フィールド"
-            aria-describedby="message-input-help"
-          />
-          
-          {/* 文字数カウンター（長文の場合に表示） */}
-          {inputValue.length > 800 && (
-            <div className="message-input__counter">
-              {inputValue.length}/1000
-            </div>
-          )}
+      {predictedQuestions.length > 0 && (
+        <div className="message-input__predictions">
+          {predictedQuestions.map((q) => (
+            <button
+              key={q.id}
+              className="message-input__prediction-button"
+              onClick={() => handlePredictedClick(q.content)}
+              disabled={isLoading || disabled}
+            >
+              {q.content}
+            </button>
+          ))}
         </div>
+      )}
 
-        {/* 送信ボタン */}
+      <div className="message-input__container">
+        <textarea
+          ref={inputRef}
+          className="message-input__field"
+          value={value} // ここで親から渡された `value` を使用
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder={isLoading ? "送信中..." : placeholder}
+          disabled={disabled || isLoading}
+          maxLength={1000}
+          aria-label="メッセージ入力フィールド"
+        ></textarea>
+        
         <button
           type="button"
           className={`message-input__button ${canSend ? 'message-input__button--active' : ''}`}
-          onClick={handleButtonClick}
+          onClick={handleSubmit}
           disabled={!canSend}
           aria-label="メッセージを送信"
         >
@@ -123,16 +88,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
               <span className="message-input__loading-dots"></span>
             </span>
           ) : (
-            <span className="message-input__send-icon">
-              ➤
-            </span>
+            <span className="message-input__send-icon">➤</span>
           )}
         </button>
-      </div>
-
-      {/* ヘルプテキスト（スクリーンリーダー用） */}
-      <div id="message-input-help" className="visually-hidden">
-        Enterキーで送信、Shift+Enterで改行
       </div>
     </div>
   );

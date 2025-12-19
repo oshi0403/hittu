@@ -3,8 +3,10 @@
 // ===============================================
 
 import React, { useEffect, useRef, useCallback } from 'react';
-import { MessageListProps } from '../../types/chat';
+import type { MessageListProps } from '../../types/chat';
 import Message from '../Message/Message';
+
+import TypewriterText from '../Typewriter/Typewriter';
 import './MessageList.scss';
 
 /**
@@ -15,7 +17,7 @@ import './MessageList.scss';
  * - スクロールバーカスタマイズ
  * - パフォーマンス最適化
  */
-const MessageList: React.FC<MessageListProps> = ({ messages }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages, onSuggestionClick }) => {
   // スクロール制御用のref
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isAutoScrollEnabledRef = useRef<boolean>(true);
@@ -59,7 +61,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
       // 初回読み込み時は即座にスクロール（アニメーションなし）
       if (previousMessageCount === 0) {
         setTimeout(() => scrollToBottom(false), 10);
-      } 
+      }
       // 自動スクロールが有効な場合のみスムーズスクロール
       else if (isAutoScrollEnabledRef.current) {
         setTimeout(() => scrollToBottom(true), 100);
@@ -90,10 +92,10 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
         <div className="message-list__empty-state">
           <div className="message-list__empty-icon">💬</div>
           <div className="message-list__empty-title">
-            会話を始めましょう
+            こんにちは，ひっつーだよ！下の入力欄から気軽に質問してね！
           </div>
           <div className="message-list__empty-description">
-            下のメッセージ入力欄から、何でもお気軽にお話しください。
+            入力中にエンターキーを押すと、その時点までの入力内容からあなたの質問を予測します。<br />予測した質問候補をクリックするとそのまま質問することができます。
           </div>
         </div>
       </div>
@@ -113,15 +115,21 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
       >
         {/* メッセージ一覧 */}
         <div className="message-list__content">
-          {messages.map((message, index) => (
-            <div 
-              key={message.id}
-              className="message-list__item"
-              role="listitem"
-            >
-              <Message message={message} />
-            </div>
-          ))}
+
+        {messages.map((message, index : number) => {
+          const isLastBotMessage = index === messages.length - 1 && message.sender === 'bot';
+
+          return (
+            <div key={message.id} className="message-list__item" role="listitem">
+              <Message
+                message={message}
+                isLastBotMessage={isLastBotMessage}
+                scrollToBottom={scrollToBottom}
+                onSuggestionClick={onSuggestionClick}  // ★追加
+              />
+              </div>
+            );
+          })}
         </div>
 
         {/* スクロール開始時のグラデーション（視覚的フィードバック） */}

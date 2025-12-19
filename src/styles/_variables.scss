@@ -91,6 +91,7 @@ $breakpoint-wide: 1200px;
 $z-index-dropdown: 1000;
 $z-index-sticky: 1020;
 $z-index-fixed: 1030;
+$z-index-above: 1035; // 新規追加: 固定要素のすぐ上にくるよう設定
 $z-index-modal: 1040;
 $z-index-popover: 1050;
 $z-index-tooltip: 1060;

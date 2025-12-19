@@ -6,6 +6,75 @@
 @import '../../styles/variables';
 @import '../../styles/mixins';
 
+// --- 新規追加: 予測質問のラッパー ---
+.message-input__predictions {
+  position: absolute;
+  bottom: calc(100% - #{$spacing-sm});
+  left: 25%;
+  right: 25%;
+  z-index: $z-index-above;
+  
+  // スクロール可能な横並びレイアウト
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: $spacing-sm;
+  overflow-x: auto;
+  
+  // paddingを調整
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+  
+  // ★追加: 予測質問のコンテナを中央に配置
+  justify-content: center;
+  
+  @include mobile {
+    gap: $spacing-xs;
+    padding-left: $spacing-sm;
+    padding-right: $spacing-sm;
+  }
+}
+
+// --- 新規追加: 予測質問ボタン ---
+.message-input__prediction-button {
+  @include button-base;
+  
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  text-align: center;
+  width: 100%;
+  font-size: 14px;
+  cursor: pointer;
+  
+  // ホバー・フォーカス効果
+  &:hover:not(:disabled) {
+    background-color: lighten($color-bg-secondary, 2%);
+    border:2px solid #a260bf;
+    transform: none;        // もう動かさない
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); // 浮いてる感は影で表現
+  }
+
+  
+  &:active:not(:disabled) {
+    transform: none;        // もう動かさない
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1); // 浮いてる感は影で表現
+
+  }
+  
+  // 無効時のスタイル
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  @include mobile {
+    font-size: $font-size-xs;
+    padding: $spacing-xs $spacing-sm;
+  }
+}
+
 // === メッセージ入力エリア ===
 .message-input {
   // 画面下部に固定（要件定義書の仕様）
@@ -21,8 +90,7 @@
   box-shadow: $shadow-md;
   
   // 高さを確実に指定（ボーダー含む）
-  height: $input-area-height;
-  min-height: $input-area-height;
+  min-height:$logo-header-size;
   
   // ボックスサイジングを明確に指定
   box-sizing: border-box;
@@ -234,5 +302,27 @@
   
   .message-input__field {
     background-color: darken($color-bg-primary, 3%);
+  }
+  
+  // 新規追加: 予測質問ボタンのダークモードスタイル
+  .message-input__prediction-button {
+    background-color: darken($color-bg-secondary, 5%);
+    border-color: darken($color-border-light, 10%);
+    color: lighten($color-text-secondary, 15%);
+    
+    &:hover:not(:disabled) {
+      background-color: darken($color-bg-secondary, 10%);
+      color: lighten($color-text-primary, 10%);
+    }
+  }
+}
+
+// --- 印刷対応 ---
+@media print {
+  // ... 既存の印刷対応スタイルは省略 ...
+  
+  // 新規追加: 予測質問ボタンの印刷対応
+  .message-input__predictions {
+    display: none;
   }
 }

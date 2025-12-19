@@ -45,6 +45,12 @@
   flex-direction: column;
 }
 
+// 新規追加
+@mixin flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
 @mixin flex-column-center {
   display: flex;
   flex-direction: column;
@@ -77,7 +83,7 @@
   color: $color-text-white;
   margin-left: auto;
   margin-right: 0;
-  text-align: right;
+  text-align: left;
 }
 
 @mixin bot-message {
@@ -177,6 +183,29 @@
   
   &::-webkit-scrollbar {
     width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: $color-border-medium;
+    border-radius: $border-radius-full;
+    
+    &:hover {
+      background-color: $color-border-dark;
+    }
+  }
+}
+
+// --- 新規追加: 横スクロールバー用Mixin ---
+@mixin custom-scrollbar-horizontal {
+  scrollbar-width: thin;
+  scrollbar-color: $color-border-medium transparent;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
   }
   
   &::-webkit-scrollbar-track {

@@ -9,11 +9,11 @@
 // === チャットコンテナメイン ===
 .chat-container {
   @include flex-column;
-  height: 100vh;
+  height:100dvh;
   width: 100%;
   background-color: $color-bg-chat;
   position: relative;
-  overflow: hidden;
+  // overflow: hidden;
   
   // 初期表示時のフェードイン
   @include fade-in;
@@ -34,7 +34,7 @@
   max-width: $chat-container-max-width;
   margin: 0 auto;
   padding: $spacing-lg $spacing-lg;
-  min-height: calc($logo-header-size + #{$spacing-lg * 2}); // ロゴサイズ + パディング
+  height: $logo-header-size; // ロゴサイズ + パディング
   
   @include tablet {
     padding: $spacing-md $spacing-xl;
@@ -73,7 +73,6 @@
   object-fit: contain; // 画像のアスペクト比を保持
   flex-shrink: 0; // サイズ固定
   border-radius: $border-radius-md; // 角丸を追加
-  box-shadow: $shadow-sm; // 軽い影を追加
   background-color: rgba($color-bg-primary, 0.8); // 背景色（透明度付き）
   padding: $spacing-xs; // 内側余白
   
@@ -89,32 +88,32 @@
   }
 }
 
-// === メニューボタン ===
-.chat-container__menu-button {
-  @include button-base;
+// // === メニューボタン ===
+// .chat-container__menu-button {
+//   @include button-base;
   
-  // 円形ボタンスタイル
-  width: 2.5rem; // 40px
-  height: 2.5rem;
-  border-radius: $border-radius-full;
-  background-color: transparent;
-  color: $color-text-secondary;
+//   // 円形ボタンスタイル
+//   width: 2.5rem; // 40px
+//   height: 2.5rem;
+//   border-radius: $border-radius-full;
+//   background-color: transparent;
+//   color: $color-text-secondary;
   
-  &:hover:not(:disabled) {
-    background-color: $color-bg-secondary;
-    color: $color-text-primary;
-  }
+//   &:hover:not(:disabled) {
+//     background-color: $color-bg-secondary;
+//     color: $color-text-primary;
+//   }
   
-  &:focus {
-    background-color: $color-bg-secondary;
-    color: $color-text-primary;
-  }
+//   &:focus {
+//     background-color: $color-bg-secondary;
+//     color: $color-text-primary;
+//   }
   
-  @include mobile {
-    width: 2rem; // 32px
-    height: 2rem;
-  }
-}
+//   @include mobile {
+//     width: 2rem; // 32px
+//     height: 2rem;
+//   }
+// }
 
 .chat-container__menu-icon {
   font-size: $font-size-lg;
@@ -187,11 +186,9 @@
 .chat-container__main {
   flex: 1;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
   background-color: $color-bg-chat;
   
-  // MessageInputの高さ分の余白を確保（重要）
-  padding-bottom: $input-area-height;
 }
 
 .chat-container__messages {
@@ -201,6 +198,7 @@
 
 // === フッター（入力エリア） ===
 .chat-container__footer {
+  min-height:$logo-header-size;
   flex-shrink: 0; // フッターサイズ固定
   z-index: $z-index-fixed;
 }

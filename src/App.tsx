@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="App">
       <ChatContainer
-        title="ひっつー"
+        title="同志社大学AI相談チャットボット"
         placeholder="何でもお気軽にお話しください..."
       />
     </div>

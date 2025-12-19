@@ -1,177 +1,229 @@
-// ===============================================
-// チャットメインコンテナコンポーネント
-// ===============================================
-
-import React, { useState, useCallback } from 'react';
-import MessageList from '../MessageList/MessageList';
+import React, { useState, useCallback, useEffect, useRef, useLayoutEffect } from 'react';
 import MessageInput from '../MessageInput/MessageInput';
-import { ChatContainerProps } from '../../types/chat';
+import MessageList from '../MessageList/MessageList';
+import { ChatContainerProps, PredictedQuestion } from '../../types/chat';
 import { Message as MessageType } from '../../types/chat';
 import { generateMessageId, getCurrentTime } from '../../utils/dateUtils';
-import hittuLogo from '../../assets/images/logos/hittu.png';
+import hittuLogo from '../../assets/images/logos/hittu-logo.png';
 import './ChatContainer.scss';
 
-/**
- * チャットアプリケーション全体を管理するメインコンテナコンポーネント
- * 要件定義書の仕様に基づいて実装：
- * - ヘッダー部分（チャットボット名/タイトル、メニューボタン）
- * - メッセージエリア（MessageList統合）
- * - 入力エリア（MessageInput統合、画面下部固定）
- * - 全体のレイアウト構成とレスポンシブ対応
- */
 const ChatContainer: React.FC<ChatContainerProps> = ({
-  title = "ひっつー",
-  placeholder = "メッセージを入力してください..."
+  title,
+  placeholder
 }) => {
-  // メッセージ状態の管理
-  const [messages, setMessages] = useState<MessageType[]>([
-    {
-      id: 'bot-welcome',
-      content: 'こんにちは！何かお手伝いできることはありますか？',
-      sender: 'bot',
-      timestamp: new Date(Date.now() - 60000), // 1分前
-    }
-  ]);
-  
-  // ローディング状態の管理
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // エラー状態の管理
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * ボットの返答をシミュレート（後でAPI連携に置き換え）
-   */
-  const generateBotResponse = useCallback((userMessage: string): string => {
-    const responses = [
-      `「${userMessage}」について、もう少し詳しく教えていただけますか？`,
-      `なるほど、「${userMessage}」ですね。興味深いですね！`,
-      `「${userMessage}」に関して、他にご質問はありますか？`,
-      `ありがとうございます！「${userMessage}」について理解しました。`,
-      `「${userMessage}」というトピックは面白いですね。他にも何かありますか？`,
-      `「${userMessage}」に関連して、以下のような点も考慮してみてはいかがでしょうか？\n\n• ポイント1: 具体的な例を考える\n• ポイント2: 他の視点から見る\n• ポイント3: 実践的な応用を検討する`,
-      `素晴らしい質問ですね！「${userMessage}」について、詳しく説明させていただきます。\n\nまず基本的な概念から始めて、具体例を交えながら解説していきましょう。`,
-    ];
-    
-    return responses[Math.floor(Math.random() * responses.length)];
+  // 質問予測機能のための状態
+  const [predictedQuestions, setPredictedQuestions] = useState<PredictedQuestion[]>([]);
+  // ユーザーのタイピング中の入力
+  const [userTypingQuery, setUserTypingQuery] = useState('');
+  // 質問予測APIを呼び出すためのトリガー
+  const [predictTrigger, setPredictTrigger] = useState<string>('');
+
+  // デバウンス処理のためのRef
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // レイアウト計算のためのRef
+  const headerRef = useRef<HTMLElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [footerHeight, setFooterHeight] = useState(0);
+
+  // ヘッダーとフッターの高さを取得し、メインエリアのパディングを設定
+  useLayoutEffect(() => {
+    if (headerRef.current) {
+      setHeaderHeight(headerRef.current.offsetHeight);
+    }
+    if (footerRef.current) {
+      setFooterHeight(footerRef.current.offsetHeight);
+    }
   }, []);
 
-  /**
-   * エラー状態をクリア
-   */
+  // ユーザーの入力に合わせて質問予測APIを呼び出す
+useEffect(() => {
+  // 予測トリガーが空なら予測をクリアして終了
+  if (!predictTrigger) {
+    setPredictedQuestions([]);
+    return;
+  }
+
+  // この useEffect 実行インスタンスが「有効かどうか」を示すフラグ
+  let isCancelled = false;
+
+  const fetchPredictions = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: predictTrigger }),
+      });
+
+      if (!response.ok) {
+        throw new Error('質問予測APIからの応答が異常です。');
+      }
+
+      const data = await response.json();
+
+      // ★ ここでキャンセル済みなら state を更新しない
+      if (isCancelled) return;
+
+      const newPredictedQuestions = data.predictions.map((q: string, index: number) => ({
+        content: q,
+        id: `pred-${index}`,
+      }));
+      setPredictedQuestions(newPredictedQuestions);
+    } catch (error) {
+      if (isCancelled) return; // ここでも同様に無視
+      console.error('質問予測API呼び出しエラー:', error);
+      setPredictedQuestions([]);
+    }
+  };
+
+  fetchPredictions();
+
+  // cleanup: predictTrigger が変わったり、コンポーネントがアンマウントされたときに呼ばれる
+  return () => {
+    isCancelled = true;
+  };
+}, [predictTrigger]);
+
+
+const handleSendMessage = useCallback(
+  async (content: string, suggestions?: PredictedQuestion[]) => {
+    if (isLoading || !content.trim()) return;
+
+    // ✅ このターンで「AI回答の末尾に付ける候補」を確定させる
+    // - 予測候補クリック経由なら suggestions(=remaining) が渡ってくる
+    // - 通常送信なら predictedQuestions をそのまま使う（未選択扱い）
+    const suggestionsForThisTurn = suggestions ?? [];
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
+    setPredictTrigger('');
+    setPredictedQuestions([]);
+
+    // ユーザーのメッセージ
+    const userMessage: MessageType = {
+      id: generateMessageId(),
+      sender: 'user',
+      content,
+      timestamp: new Date(),
+      isLoading: false,
+    };
+    setMessages(prev => [...prev, userMessage]);
+
+    setUserTypingQuery('');
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('http://localhost:8000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: content }),
+      });
+
+      if (!response.ok) throw new Error('チャットボットAPIからの応答が異常です。');
+
+      const data = await response.json();
+      const botResponseContent = data.response;
+      
+
+      // ✅ botメッセージに suggestions を付ける
+      const botMessage: MessageType = {
+        id: generateMessageId(),
+        sender: 'bot',
+        content: botResponseContent,
+        timestamp: new Date(),
+        isLoading: false,
+        suggestions: suggestionsForThisTurn.length ? suggestionsForThisTurn : undefined,
+      };
+
+      setMessages(prev => [...prev, botMessage]);
+    } catch (err) {
+      console.error('メッセージ送信中にエラーが発生しました:', err);
+      setError('メッセージの送信中に問題が発生しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
+    }
+  },
+  [isLoading, predictedQuestions]
+);
+
+  const handlePredictedQuestionClick = useCallback((question: string) => {
+    const trimmed = question.trim();
+    if (!trimmed || isLoading) return;
+
+    // selected を除外した remaining を作る（content一致で除外）
+    const remaining = predictedQuestions.filter(q => q.content !== trimmed);
+
+    // UI上の候補は消す（好みで）
+    setPredictedQuestions([]);
+    setPredictTrigger('');
+    setUserTypingQuery('');
+
+    console.log("remaining", remaining);
+    handleSendMessage(trimmed, remaining);
+  }, [predictedQuestions, handleSendMessage, isLoading]);
+
+  const handleTypingChange = useCallback((text: string) => {
+    setUserTypingQuery(text);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    if (text.length > 2) {
+      debounceTimerRef.current = setTimeout(() => {
+        setPredictTrigger(text);
+      }, 500);
+    } else {
+      setPredictTrigger('');
+    }
+  }, []);
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
-  /**
-   * メッセージ送信処理
-   */
-  const handleSendMessage = useCallback(async (content: string) => {
-    try {
-      // エラー状態をクリア
-      clearError();
-      setIsLoading(true);
-
-      // ユーザーメッセージを追加
-      const userMessage: MessageType = {
-        id: generateMessageId(),
-        content,
-        sender: 'user',
-        timestamp: getCurrentTime(),
-      };
-
-      setMessages(prev => [...prev, userMessage]);
-
-      // ローディング中のボットメッセージを追加
-      const loadingBotMessage: MessageType = {
-        id: generateMessageId(),
-        content: '',
-        sender: 'bot',
-        timestamp: getCurrentTime(),
-        isLoading: true,
-      };
-
-      setMessages(prev => [...prev, loadingBotMessage]);
-
-      // 人工的な遅延（実際のAPI通信をシミュレート）
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-
-      // ボットの返答を生成
-      const botResponse = generateBotResponse(content);
-
-      // ローディングメッセージを実際のレスポンスで置き換え
-      setMessages(prev => 
-        prev.map((msg, index) => 
-          index === prev.length - 1 
-            ? { ...msg, content: botResponse, isLoading: false, timestamp: getCurrentTime() }
-            : msg
-        )
-      );
-
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      
-      // エラー時はローディングメッセージを削除
-      setMessages(prev => prev.slice(0, -1));
-      
-      // エラー状態を設定
-      setError('メッセージの送信に失敗しました。もう一度お試しください。');
-      
-    } finally {
-      setIsLoading(false);
-    }
-  }, [generateBotResponse, clearError]);
-
-  /**
-   * メッセージ履歴をクリア
-   */
   const handleClearMessages = useCallback(() => {
     setMessages([]);
     clearError();
   }, [clearError]);
 
-  /**
-   * メニューボタンクリック処理（将来の拡張用）
-   */
   const handleMenuClick = useCallback(() => {
-    // 将来的にメニュー機能を実装
     console.log('Menu clicked');
   }, []);
 
-  /**
-   * エラー表示を閉じる
-   */
   const handleCloseError = useCallback(() => {
     clearError();
   }, [clearError]);
 
   return (
     <div className="chat-container">
-      {/* ヘッダー部分 */}
-      <header className="chat-container__header">
+      <header className="chat-container__header" ref={headerRef}>
         <div className="chat-container__header-content">
-          {/* タイトル */}
           <h1 className="chat-container__title">
-            <img 
-              src={hittuLogo} 
-              alt="Hittu チャットボット" 
+            <img
+              src={hittuLogo}
+              alt="Hittu チャットボット"
               className="chat-container__title-icon"
             />
             {title}
           </h1>
-
-          {/* メニューボタン（将来の拡張用） */}
-          <button
+          {/* <button
             className="chat-container__menu-button"
             onClick={handleMenuClick}
             aria-label="メニューを開く"
             title="設定・オプション"
           >
             <span className="chat-container__menu-icon">⋮</span>
-          </button>
+          </button> */}
         </div>
-
-        {/* エラー表示 */}
         {error && (
           <div className="chat-container__error" role="alert">
             <div className="chat-container__error-content">
@@ -188,25 +240,27 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           </div>
         )}
       </header>
-
-      {/* メッセージエリア */}
-      <main className="chat-container__main">
+      <main
+        className="chat-container__main">
         <div className="chat-container__messages">
-          <MessageList messages={messages} />
+          <MessageList
+            messages={messages}
+            onSuggestionClick={(text) => handleSendMessage(text)}
+          />
         </div>
       </main>
-
-      {/* 入力エリア（画面下部固定） */}
-      <footer className="chat-container__footer">
+      <footer className="chat-container__footer" ref={footerRef}>
         <MessageInput
           onSendMessage={handleSendMessage}
+          onTypingChange={handleTypingChange}
           isLoading={isLoading}
           placeholder={placeholder}
-          disabled={!!error} // エラー時は入力無効
+          disabled={!!error}
+          predictedQuestions={predictedQuestions}
+          onPredictedQuestionClick={handlePredictedQuestionClick}
+          value={userTypingQuery} // ここに `userTypingQuery` を渡す
         />
       </footer>
-
-      {/* デバッグ用コントロール（開発時のみ表示） */}
       {process.env.NODE_ENV === 'development' && (
         <div className="chat-container__debug">
           <button

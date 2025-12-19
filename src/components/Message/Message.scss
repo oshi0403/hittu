@@ -9,28 +9,38 @@
 // === メッセージコンテナ ===
 .message {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start; // メッセージの配置を上部に揃える
   margin-bottom: $message-spacing;
   width: 100%;
   
   // フェードインアニメーション
   @include fade-in;
   
-  // ユーザーメッセージ（右寄せ）
+  // ユーザーメッセージとボットメッセージの両方を左寄せ
+  &--user,
+  &--bot {
+    justify-content: flex-start;
+    // 全て左寄せなので、デフォルトの表示方向 (row) を使用
+  }
+  
+  // ユーザーメッセージ
   &--user {
-    justify-content: flex-end;
-    
+    // ユーザーメッセージはアバターなしでテキストのみにしたい場合
     .message__bubble {
+      // ユーザーメッセージのスタイルを定義
       @include user-message;
+      // 角を調整 (ボットメッセージと同じ)
+      border-bottom-left-radius: 0; 
     }
   }
   
-  // ボットメッセージ（左寄せ）
+  // ボットメッセージ
   &--bot {
-    justify-content: flex-start;
-    
+    // ボットメッセージはアバターありでテキストを左寄せに
     .message__bubble {
       @include bot-message;
+      // 角を調整 (ユーザーメッセージと同じ)
+      border-bottom-left-radius: 0; 
     }
   }
   
@@ -101,11 +111,12 @@
   font-size: $font-size-xs;
   color: $color-text-muted;
   margin-top: $spacing-xs;
-  text-align: right;
   
-  // ユーザーメッセージの場合は右揃え、ボットメッセージの場合は左揃え
+  // 時刻表示をすべて左揃えに統一
+  text-align: left;
+  
   .message--user & {
-    text-align: right;
+    text-align: left;
   }
   
   .message--bot & {
@@ -178,4 +189,51 @@
   .message__timestamp {
     color: lighten($color-text-muted, 20%);
   }
+}
+.message__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* 右寄せ */
+  gap: 8px;
+  margin-top: 4px;
+  min-height: 20px; /* レイアウト崩れ防止 */
+}
+
+.message__copy-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  opacity: 0.6; /* 通常時は少し薄く */
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    opacity: 1;
+    color: #000;
+  }
+}
+
+.message__copy-success {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.message__copy-icon {
+  display: flex;
+  align-items: center;
+}
+
+/* ユーザーのメッセージ側ではフッターの配置を調整（必要であれば） */
+.message--user .message__footer {
+  justify-content: flex-end; 
+  /* ユーザー側にはコピーボタンがないのでタイムスタンプのみ */
 }
