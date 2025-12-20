@@ -3,6 +3,9 @@
 
 name: Build and deploy Node.js app to Azure Web App - hittu
 
+env:
+CI:false
+
 on:
   push:
     branches:
@@ -62,4 +65,6 @@ jobs:
           app-name: 'hittu'
           slot-name: 'Production'
           package: .
+    
+
           
