@@ -2,7 +2,7 @@
   "routes": [
     {
       "route": "/api/*",
-      "rewrite": "https://hittu-backend.greenwave-2095eb91.japanwest.azurecontainerapps.io/api/{path}"
+      "rewrite": "https://hittu-backend.greenwave-2095eb91.japanwest.azurecontainerapps.io/api/{*}"
     }
   ]
 }
