@@ -1,0 +1,8 @@
+{
+  "routes": [
+    {
+      "route": "/api/*",
+      "rewrite": "https://hittu-backend.japaneast.azurecontainerapps.io/api/{*}"
+    }
+  ]
+}
