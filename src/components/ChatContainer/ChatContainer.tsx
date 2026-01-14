@@ -7,6 +7,8 @@ import { generateMessageId, getCurrentTime } from '../../utils/dateUtils';
 import hittuLogo from '../../assets/images/logos/hittu-logo.png';
 import './ChatContainer.scss';
 
+const API_BASE = process.env.REACT_APP_API_BASE;
+
 const ChatContainer: React.FC<ChatContainerProps> = ({
   title,
   placeholder
