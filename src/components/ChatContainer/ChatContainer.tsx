@@ -54,7 +54,7 @@ useEffect(() => {
 
   const fetchPredictions = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/predict', {
+      const response = await fetch('${API_BASE}/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: predictTrigger }),
@@ -122,7 +122,7 @@ const handleSendMessage = useCallback(
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch('${API_BASE}/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: content }),
